@@ -436,6 +436,16 @@ th {
     align-items: flex-start;
     gap: 1rem;
   }
+
+  .header-weather-block {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .weather-header-grid {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 }
 
 /* Animations */
