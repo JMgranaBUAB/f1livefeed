@@ -1,10 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getLatestSession, getPositions, getWeather, getRaceControl } from '../services/api';
+import {
+    getLatestSession,
+    getPositions,
+    getDrivers,
+    getWeather,
+    getRaceControl,
+    getIntervals,
+    getStints,
+    getLaps,
+    getPitStops
+} from '../services/api';
 
 const POLLING_INTERVAL_MS = 8000; // 8 seconds to stay under 30 req/min (OpenF1 free tier limit)
 
 export const useF1Data = () => {
     const [session, setSession] = useState(null);
+    const [driversInfo, setDriversInfo] = useState({});
     const [positions, setPositions] = useState([]);
     const [weather, setWeather] = useState([]);
     const [raceControl, setRaceControl] = useState([]);
@@ -12,7 +23,7 @@ export const useF1Data = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Initial load: get session details
+    // Initial load: get session details & drivers info
     useEffect(() => {
         let mounted = true;
 
@@ -20,8 +31,21 @@ export const useF1Data = () => {
             try {
                 setLoading(true);
                 const latestSession = await getLatestSession();
-                if (mounted) {
+
+                if (mounted && latestSession) {
                     setSession(latestSession);
+
+                    // Fetch drivers for this session
+                    try {
+                        const driversRes = await getDrivers(latestSession.session_key);
+                        const driversMap = {};
+                        driversRes.forEach(d => {
+                            driversMap[d.driver_number] = d;
+                        });
+                        setDriversInfo(driversMap);
+                    } catch (err) {
+                        console.error('Failed to fetch drivers metadata', err);
+                    }
                 }
             } catch (err) {
                 if (mounted) setError(err.message);
@@ -46,17 +70,49 @@ export const useF1Data = () => {
             isFetching = true;
 
             try {
-                // We use Promise.allSettled to ensure one failure doesn't crash the whole poll
-                const [positionsRes, weatherRes, raceControlRes] = await Promise.allSettled([
-                    getPositions(session.session_key),
-                    getWeather(session.session_key),
-                    getRaceControl(session.session_key)
+                const sessionKey = session.session_key;
+
+                // Fire all requests in parallel
+                const [
+                    posRes,
+                    weatherRes,
+                    rcRes,
+                    intRes,
+                    stintsRes,
+                    lapsRes,
+                    pitsRes
+                ] = await Promise.allSettled([
+                    getPositions(sessionKey),
+                    getWeather(sessionKey),
+                    getRaceControl(sessionKey),
+                    getIntervals(sessionKey),
+                    getStints(sessionKey),
+                    getLaps(sessionKey),
+                    getPitStops(sessionKey)
                 ]);
 
-                if (positionsRes.status === 'fulfilled') {
-                    // Keep only the most recent position for each driver.
-                    // The API often returns historical arrays; we want the latest sequence
-                    const latestPositions = filterLatestDriverData(positionsRes.value);
+                if (posRes.status === 'fulfilled') {
+                    let latestPositions = filterLatestDriverData(posRes.value);
+
+                    // Maps for efficient merging
+                    const intervalsMap = intRes.status === 'fulfilled' ? mapLatestByDriver(intRes.value) : {};
+                    const stintsMap = stintsRes.status === 'fulfilled' ? mapLatestByDriver(stintsRes.value) : {};
+                    const lapsMap = lapsRes.status === 'fulfilled' ? mapLatestByDriver(lapsRes.value) : {};
+                    const pitsMap = pitsRes.status === 'fulfilled' ? mapByDriverCount(pitsRes.value) : {};
+
+                    // Merge all metadata into the position object
+                    latestPositions = latestPositions.map(pos => {
+                        const driverNum = pos.driver_number;
+                        return {
+                            ...pos,
+                            driver_data: driversInfo[driverNum] || null,
+                            interval_data: intervalsMap[driverNum] || null,
+                            tyre_data: stintsMap[driverNum] || null,
+                            lap_data: lapsMap[driverNum] || null,
+                            pit_count: pitsMap[driverNum] || 0
+                        };
+                    });
+
                     setPositions(latestPositions);
                 }
 
@@ -69,9 +125,9 @@ export const useF1Data = () => {
                     );
                 }
 
-                if (raceControlRes.status === 'fulfilled') {
+                if (rcRes.status === 'fulfilled') {
                     // Race control messages can be large; we keep the whole array but usually only render the latest
-                    setRaceControl(raceControlRes.value);
+                    setRaceControl(rcRes.value);
                 }
 
                 setError(null);
@@ -89,10 +145,12 @@ export const useF1Data = () => {
         intervalId = setInterval(fetchLiveData, POLLING_INTERVAL_MS);
 
         return () => clearInterval(intervalId);
-    }, [session]);
+    }, [session, driversInfo]);
 
     return { session, positions, weather, raceControl, loading, error };
 };
+
+// --- Helpers ---
 
 // Helper function to extract only the most recent position per driver
 const filterLatestDriverData = (dataArray) => {
@@ -110,4 +168,28 @@ const filterLatestDriverData = (dataArray) => {
 
     // Convert object back to array and sort by position
     return Object.values(latestByDriver).sort((a, b) => a.position - b.position);
+};
+
+// Generic helper to get the absolute last entry for each driver in a timeline
+const mapLatestByDriver = (dataArray) => {
+    if (!dataArray || dataArray.length === 0) return {};
+    const map = {};
+    dataArray.forEach(entry => {
+        const dNum = entry.driver_number;
+        if (!map[dNum] || new Date(entry.date) > new Date(map[dNum].date)) {
+            map[dNum] = entry;
+        }
+    });
+    return map;
+};
+
+// Specialist helper for pit stops (count per driver)
+const mapByDriverCount = (dataArray) => {
+    if (!dataArray || dataArray.length === 0) return {};
+    const countMap = {};
+    dataArray.forEach(entry => {
+        const dNum = entry.driver_number;
+        countMap[dNum] = (countMap[dNum] || 0) + 1;
+    });
+    return countMap;
 };

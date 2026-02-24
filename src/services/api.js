@@ -31,9 +31,15 @@ const fetchSessionData = async (endpoint, sessionKey, extraParams = {}) => {
 };
 
 export const getPositions = (sessionKey) => fetchSessionData(ENDPOINTS.POSITIONS, sessionKey);
+export const getDrivers = (sessionKey) => fetchSessionData(ENDPOINTS.DRIVERS, sessionKey);
 export const getWeather = (sessionKey) => fetchSessionData(ENDPOINTS.WEATHER, sessionKey);
 export const getRaceControl = (sessionKey) => fetchSessionData(ENDPOINTS.RACE_CONTROL, sessionKey);
 export const getTeamRadio = (sessionKey) => fetchSessionData(ENDPOINTS.RADIO, sessionKey);
+
+export const getIntervals = (sessionKey) => fetchSessionData(ENDPOINTS.INTERVALS, sessionKey);
+export const getStints = (sessionKey) => fetchSessionData(ENDPOINTS.STINTS, sessionKey);
+export const getLaps = (sessionKey) => fetchSessionData(ENDPOINTS.LAPS, sessionKey);
+export const getPitStops = (sessionKey) => fetchSessionData(ENDPOINTS.PIT_STOPS, sessionKey);
 
 // Fetch car data with a specific driver number parameter (required for performance)
 export const getCarData = (sessionKey, driverNumber) =>
