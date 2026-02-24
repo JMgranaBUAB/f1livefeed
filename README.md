@@ -2,6 +2,8 @@
 
 ![F1 Live App Icon](favicon.png)
 
+**Live Demo:** [https://f1livefeed.vercel.app/](https://f1livefeed.vercel.app/)
+
 A real-time Formula 1 application built with React, Vite, and tailwind-style Vanilla CSS. This app connects to OpenF1 and Jolpica APIs to provide a fully live and responsive dashboard containing:
 - Live track positions and gaps
 - Championship standings (Drivers & Constructors) updating in real-time based on the ongoing race
@@ -29,29 +31,18 @@ A real-time Formula 1 application built with React, Vite, and tailwind-style Van
 
 3. Open `http://localhost:5173` in your browser.
 
+## Data Sources
+
+Data for this project is provided for free by the following APIs:
+- [OpenF1 API](https://openf1.org) - Used for real-time race data (positions, distances, weather, and radio).
+- [Jolpica F1 API](https://jolpi.ca) - Used for fetching historical and current championship standings.
+
+## Disclaimer
+
+This website is an independent, unofficial project and is not affiliated in any way with the Formula 1 group of companies, the FIA, or any related entity. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and other related trademarks are registered trademarks of Formula One Licensing B.V.
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file or the section below for details.
+This project is licensed under the GPL-3.0 License. 
 
-### MIT License
-
-Copyright (c) 2024 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 # f1livefeed

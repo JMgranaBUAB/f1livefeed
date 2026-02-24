@@ -6,6 +6,7 @@ import WeatherPanel from './components/WeatherPanel';
 import RaceControl from './components/RaceControl';
 import DriverStandings from './components/DriverStandings';
 import ConstructorStandings from './components/ConstructorStandings';
+import Footer from './components/Footer';
 import { Activity } from 'lucide-react';
 import './index.css';
 
@@ -16,30 +17,45 @@ function App() {
         session?.session_type
     );
 
-    if (liveLoading && !session) {
-        return (
-            <div className="app-container loading-state">
-                <div className="loader">
+    const renderContent = () => {
+        if (liveLoading && !session) {
+            return (
+                <div className="loader" style={{ marginTop: '4rem' }}>
                     <div className="spinner"></div>
                     <h2>Connecting to F1 Grid...</h2>
                 </div>
-            </div>
-        );
-    }
+            );
+        }
 
-    if (liveError) {
-        return (
-            <div className="app-container error-state">
-                <div className="glass-panel">
+        if (liveError) {
+            return (
+                <div className="glass-panel" style={{ marginTop: '4rem', textAlign: 'center' }}>
                     <h2>Connection Lost</h2>
                     <p>{liveError}</p>
-                    <button onClick={() => window.location.reload()} className="btn-primary">
+                    <button onClick={() => window.location.reload()} className="btn-primary" style={{ marginTop: '1rem' }}>
                         Retry Connection
                     </button>
                 </div>
-            </div>
+            );
+        }
+
+        return (
+            <main className="dashboard-grid">
+                <div className="main-column">
+                    <Leaderboard positions={positions} loading={liveLoading} />
+                </div>
+
+                <div className="main-column" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <DriverStandings standings={driverStandings} loading={champLoading} />
+                    <ConstructorStandings standings={constructorStandings} loading={champLoading} />
+                </div>
+
+                <div className="main-column">
+                    <RaceControl messages={raceControl} />
+                </div>
+            </main>
         );
-    }
+    };
 
     return (
         <div className="app-container">
@@ -56,27 +72,19 @@ function App() {
                         </p>
                     )}
                 </div>
+
+                {/* Weather inserted in the middle of header if it fits nicely */}
+                <WeatherPanel weather={weather} />
+
                 <div className="status-indicator">
                     <Activity className="pulse-icon text-accent" />
                     <span>Tracking Active</span>
                 </div>
             </header>
 
-            <main className="dashboard-grid">
-                <div className="main-column">
-                    <Leaderboard positions={positions} loading={liveLoading} />
-                </div>
+            {renderContent()}
 
-                <div className="main-column" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <DriverStandings standings={driverStandings} loading={champLoading} />
-                    <ConstructorStandings standings={constructorStandings} loading={champLoading} />
-                </div>
-
-                <div className="side-column">
-                    <WeatherPanel weather={weather} />
-                    <RaceControl messages={raceControl} />
-                </div>
-            </main>
+            <Footer />
         </div>
     );
 }
