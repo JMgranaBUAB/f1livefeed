@@ -27,7 +27,11 @@ const RaceControl = ({ messages }) => {
         if (cat === 'SafetyCar' || text.includes('SAFETY CAR')) return 'SAFETY_CAR';
         if (text.includes('GREEN LIGHT') || text.includes('CLEAR IN TRACK') || text.includes('TRACK CLEAR') || text.includes('PIT LANE ENTRY OPEN')) return 'GREEN_LIGHT';
         if (text.includes('SESSION STARTED') || text.includes('SESSION FINISHED') || text.includes('STANDING START')) return 'CHECKERED_FLAG';
-        if (text.includes('YELLOW') || cat === 'Flag') return 'YELLOW_FLAG';
+        if (text.includes('YELLOW') || cat === 'Flag') {
+            if (text.includes('DOUBLE YELLOW')) return 'DOUBLE_YELLOW';
+            return 'YELLOW_FLAG';
+        }
+        if (text.includes('RED FLAG') || text.includes('SESSION ABORTED')) return 'RED_FLAG';
         if (text.includes('WAVED BLUE FLAG')) return 'BLUE_FLAG';
         if (text.includes('BLACK AND WHITE FLAG')) return 'BLACK_WHITE_FLAG';
         if (text.includes('PENALTY') || text.includes('TIME PENALTY')) return 'PENALTY';
@@ -50,6 +54,8 @@ const RaceControl = ({ messages }) => {
     const getIcon = (category) => {
         switch (category) {
             case 'YELLOW_FLAG': return <img src="/yellow_flag.png" alt="Yellow Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
+            case 'DOUBLE_YELLOW': return <img src="/double_yellow.svg" alt="Double Yellow" className="msg-icon" style={{ width: '20px', height: '16px', borderRadius: '2px' }} />;
+            case 'RED_FLAG': return <img src="/red_flag.svg" alt="Red Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
             case 'GREEN_LIGHT': return <img src="/green_light.png" alt="Green Light" className="msg-icon" style={{ width: '20px', height: '20px', borderRadius: '4px' }} />;
             case 'CHECKERED_FLAG': return <img src="/checkered_flag.png" alt="Session Status" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
             case 'BLUE_FLAG': return <img src="/blue_flag.svg" alt="Blue Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
@@ -74,7 +80,9 @@ const RaceControl = ({ messages }) => {
             case 'PENALTY': return '#EF4444';
             case 'GREEN_LIGHT': return '#10B981';
             case 'CHECKERED_FLAG': return '#FFFFFF';
-            case 'YELLOW_FLAG': return '#FBBF24';
+            case 'YELLOW_FLAG':
+            case 'DOUBLE_YELLOW': return '#FBBF24';
+            case 'RED_FLAG': return '#EF4444';
             case 'INVESTIGATION': return '#3B82F6';
             case 'DRS_ON': return '#10B981';
             case 'TRACK_LIMITS': return '#FBBF24';
