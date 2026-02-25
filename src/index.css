@@ -191,17 +191,31 @@ body {
   animation: pulse-icon 2s infinite;
 }
 
-/* Dashboard Grid Component */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1.2fr 1fr;
-  gap: 2rem;
-}
-
-.side-column {
+/* Main Dashboard Content Layout */
+.dashboard-content {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.live-session-section {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.championship-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Container wrappers to help with scaling */
+.leaderboard-container,
+.race-control-container {
+  width: 100%;
 }
 
 /* Leaderboard Table */
@@ -346,6 +360,28 @@ th {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Custom scrollbar for messages */
+.messages-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.messages-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.messages-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-red);
 }
 
 .message-item {
@@ -420,17 +456,23 @@ th {
 }
 
 /* Responsive adjustments */
-@media (max-width: 1024px) {
-  .dashboard-grid {
+@media (max-width: 1200px) {
+  .live-session-section {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .championship-section {
+    grid-template-columns: 1fr;
+  }
+
   .app-container {
     padding: 1rem;
   }
+}
 
+@media (max-width: 768px) {
   .app-header {
     flex-direction: column;
     align-items: flex-start;

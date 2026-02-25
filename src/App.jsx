@@ -40,19 +40,22 @@ function App() {
         }
 
         return (
-            <main className="dashboard-grid">
-                <div className="main-column">
-                    <Leaderboard positions={positions} loading={liveLoading} />
-                </div>
+            <main className="dashboard-content">
+                {/* Section 1: Live Timing & Race Control */}
+                <section className="live-session-section">
+                    <div className="leaderboard-container">
+                        <Leaderboard positions={positions} loading={liveLoading} />
+                    </div>
+                    <div className="race-control-container">
+                        <RaceControl messages={raceControl} />
+                    </div>
+                </section>
 
-                <div className="main-column" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Section 2: Championship Standings */}
+                <section className="championship-section">
                     <DriverStandings standings={driverStandings} loading={champLoading} />
                     <ConstructorStandings standings={constructorStandings} loading={champLoading} />
-                </div>
-
-                <div className="main-column">
-                    <RaceControl messages={raceControl} />
-                </div>
+                </section>
             </main>
         );
     };

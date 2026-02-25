@@ -1,5 +1,9 @@
 import React from 'react';
-import { Flag, AlertTriangle, MessageSquare } from 'lucide-react';
+import {
+    Flag,
+    MessageSquare,
+    AlertTriangle
+} from 'lucide-react';
 
 const RaceControl = ({ messages }) => {
     if (!messages || messages.length === 0) {
@@ -13,14 +17,71 @@ const RaceControl = ({ messages }) => {
         );
     }
 
-    // Display only the 5 most recent messages
-    const recentMessages = [...messages].reverse().slice(0, 5);
+    // Display all messages reversed (newest at top)
+    const allMessages = [...messages].reverse();
+
+    const getMessageCategory = (msg) => {
+        const text = msg.message?.toUpperCase() || '';
+        const cat = msg.category;
+
+        if (cat === 'SafetyCar' || text.includes('SAFETY CAR')) return 'SAFETY_CAR';
+        if (text.includes('GREEN LIGHT') || text.includes('CLEAR IN TRACK') || text.includes('TRACK CLEAR') || text.includes('PIT LANE ENTRY OPEN')) return 'GREEN_LIGHT';
+        if (text.includes('SESSION STARTED') || text.includes('SESSION FINISHED') || text.includes('STANDING START')) return 'CHECKERED_FLAG';
+        if (text.includes('YELLOW') || cat === 'Flag') return 'YELLOW_FLAG';
+        if (text.includes('WAVED BLUE FLAG')) return 'BLUE_FLAG';
+        if (text.includes('BLACK AND WHITE FLAG')) return 'BLACK_WHITE_FLAG';
+        if (text.includes('PENALTY') || text.includes('TIME PENALTY')) return 'PENALTY';
+        if (text.includes('INVESTIGATION') || text.includes('UNDER INVESTIGATION')) return 'INVESTIGATION';
+        if (text.includes('TRACK LIMITS')) return 'TRACK_LIMITS';
+        if (text.includes('LAP DELETED')) return 'LAP_DELETED';
+        if (text.includes('TECHNICAL')) return 'TECHNICAL';
+        if (text.includes('DRS ENABLED')) return 'DRS_ON';
+        if (text.includes('DRS DISABLED')) return 'DRS_OFF';
+        if (text.includes('RACE WILL RESUME') ||
+            text.includes('SESSION WILL RESUME') ||
+            text.includes('OVERTAKE ENABLED') ||
+            text.includes('PINK HEAD PADDING MATERIAL') ||
+            text.includes('STRAIGHT MODE') ||
+            text.includes('EXTRA FORMATION LAP')) return 'INFO';
+
+        return 'OTHER';
+    };
 
     const getIcon = (category) => {
         switch (category) {
-            case 'Flag': return <Flag className="msg-icon text-yellow" />;
-            case 'SafetyCar': return <AlertTriangle className="msg-icon text-red" />;
+            case 'YELLOW_FLAG': return <img src="/yellow_flag.png" alt="Yellow Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
+            case 'GREEN_LIGHT': return <img src="/green_light.png" alt="Green Light" className="msg-icon" style={{ width: '20px', height: '20px', borderRadius: '4px' }} />;
+            case 'CHECKERED_FLAG': return <img src="/checkered_flag.png" alt="Session Status" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
+            case 'BLUE_FLAG': return <img src="/blue_flag.svg" alt="Blue Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
+            case 'BLACK_WHITE_FLAG': return <img src="/black_white_flag.svg" alt="Black and White Flag" className="msg-icon" style={{ width: '20px', height: '12px', borderRadius: '2px' }} />;
+            case 'SAFETY_CAR': return <AlertTriangle className="msg-icon" style={{ color: '#EF4444' }} />;
+            case 'PENALTY':
+            case 'INVESTIGATION':
+            case 'TRACK_LIMITS':
+            case 'LAP_DELETED':
+            case 'TECHNICAL':
+            case 'DRS_ON':
+            case 'DRS_OFF':
+            case 'INFO':
+                return <img src="/info_icon.svg" alt="Info" className="msg-icon" style={{ width: '20px', height: '20px' }} />;
             default: return <MessageSquare className="msg-icon text-accent" />;
+        }
+    };
+
+    const getBorderColor = (category) => {
+        switch (category) {
+            case 'SAFETY_CAR':
+            case 'PENALTY': return '#EF4444';
+            case 'GREEN_LIGHT': return '#10B981';
+            case 'CHECKERED_FLAG': return '#FFFFFF';
+            case 'YELLOW_FLAG': return '#FBBF24';
+            case 'INVESTIGATION': return '#3B82F6';
+            case 'DRS_ON': return '#10B981';
+            case 'TRACK_LIMITS': return '#FBBF24';
+            case 'BLUE_FLAG': return '#0000FF';
+            case 'BLACK_WHITE_FLAG': return '#FFFFFF';
+            case 'INFO': return '#0053A0';
+            default: return 'var(--accent-red)';
         }
     };
 
@@ -32,19 +93,22 @@ const RaceControl = ({ messages }) => {
             </div>
 
             <div className="messages-list">
-                {recentMessages.map((msg, index) => (
-                    <div key={index} className="message-item">
-                        <div className="message-icon-wrapper">
-                            {getIcon(msg.category)}
+                {allMessages.map((msg, index) => {
+                    const category = getMessageCategory(msg);
+                    return (
+                        <div key={index} className="message-item" style={{ borderLeftColor: getBorderColor(category) }}>
+                            <div className="message-icon-wrapper">
+                                {getIcon(category)}
+                            </div>
+                            <div className="message-content">
+                                <span className="message-time">
+                                    {new Date(msg.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </span>
+                                <p className="message-text">{msg.message}</p>
+                            </div>
                         </div>
-                        <div className="message-content">
-                            <span className="message-time">
-                                {new Date(msg.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                            </span>
-                            <p className="message-text">{msg.message}</p>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
